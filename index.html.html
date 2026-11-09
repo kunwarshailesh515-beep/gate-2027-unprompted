@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GATE 2027 Architecture (AR) Unprompted Studio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        arch: {
+                            bg: '#090a0f',
+                            card: '#12151c',
+                            cardHover: '#181c25',
+                            border: '#222733',
+                            borderLight: '#2e3545',
+                            accent: '#FF3B30',
+                            accentGlow: 'rgba(255, 59, 48, 0.25)',
+                            subtle: '#8e96a5',
+                            text: '#f1f3f7'
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['JetBrains Mono', 'Fira Code', 'Courier New', 'monospace'],
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Precision Isometric Drafting Grid Background matching image_47553e.png */
+        body {
+            background-color: #090a0f;
+            background-image: 
+                linear-gradient(30deg, #151821 12%, transparent 12.5%, transparent 87%, #151821 87.5%, #151821),
+                linear-gradient(150deg, #151821 12%, transparent 12.5%, transparent 87%, #151821 87.5%, #151821),
+                linear-gradient(30deg, #151821 12%, transparent 12.5%, transparent 87%, #151821 87.5%, #151821),
+                linear-gradient(150deg, #151821 12%, transparent 12.5%, transparent 87%, #151821 87.5%, #151821),
+                linear-gradient(60deg, #151821 25%, transparent 25.5%, transparent 75%, #151821 75.5%, #151821),
+                linear-gradient(60deg, #151821 25%, transparent 25.5%, transparent 75%, #151821 75.5%, #151821);
+            background-size: 40px 70px;
+            background-position: 0 0, 0 0, 20px 35px, 20px 35px, 0 0, 20px 35px;
+        }
+
+        /* Custom minimal scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090a0f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #222733;
+            border-radius: 2px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FF3B30;
+        }
+
+        /* Architectural Card Glow & Wireframe Border */
+        .arch-card {
+            background: #12151c;
+            border: 1px solid #222733;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .accent-border {
+            border-color: #FF3B30 !important;
+            box-shadow: 0 0 15px rgba(255, 59, 48, 0.2);
+        }
+
+        /* Custom Range Slider Style */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: #1a1e28;
+            border-radius: 4px;
+            height: 4px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 14px;
+            width: 14px;
+            border-radius: 50%;
+            background: #FF3B30;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(255, 59, 48, 0.6);
+            transition: all 0.15s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Card Slot-Machine Transition Effect */
+        .card-spin-out {
+            transform: translateY(-10px) scale(0.98);
+            opacity: 0;
+            transition: all 0.15s cubic-bezier(0.4, 0, 1, 1);
+        }
+        .card-spin-in {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            transition: all 0.25s cubic-bezier(0, 0, 0.2, 1);
+        }
+
+        /* Recording Pulse */
+        @keyframes pulseRed {
+            0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.6); }
+            70% { box-shadow: 0 0 0 12px rgba(255, 59, 48, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+        }
+        .rec-active-pulse {
+            animation: pulseRed 1.4s infinite;
+        }
+    </style>
+</head>
+<body class="text-arch-text font-sans min-h-screen flex flex-col justify-between selection:bg-arch-accent selection:text-white antialiased">
+
+    <!-- HEADER / NAVIGATION BAR -->
+    <header class="border-b border-arch-border/80 bg-arch-bg/95 backdrop-blur sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex flex-row items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 rounded-xl bg-arch-card border border-arch-border flex items-center justify-center text-arch-accent font-mono font-bold text-lg shadow-inner">
+                    <i class="fa-solid fa-cube"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-sans text-sm tracking-wider uppercase font-bold text-white">LAYOUT SELECTION</h1>
+                        <span class="text-[10px] font-mono bg-arch-accent/20 text-arch-accent px-2 py-0.5 rounded border border-arch-accent/40 font-semibold">GATE AR 2027</span>
+                    </div>
+                    <p class="text-xs text-arch-subtle font-mono">SECTION 13.1 &bull; Architectural Practice Engine</p>
+                </div>
+            </div>
+
+            <!-- Header Action Controls -->
+            <div class="flex items-center gap-3 text-xs font-mono">
+                <button id="btnSoundToggle" class="px-3 py-1.5 rounded-full bg-arch-card border border-arch-border text-arch-subtle hover:text-white hover:border-arch-accent transition flex items-center gap-2">
+                    <i class="fa-solid fa-volume-high text-arch-accent"></i> Audio: <span id="soundState" class="text-white">ON</span>
+                </button>
+                <button id="btnNotionGuide" class="px-3 py-1.5 rounded-full bg-arch-card border border-arch-border text-arch-subtle hover:text-white hover:border-arch-accent transition flex items-center gap-2">
+                    <i class="fa-brands fa-github text-white"></i> Notion Embed
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN DASHBOARD LAYOUT -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT COLUMN: 3D WIREFRAME & PROMPT ENGINE (7 COLS) -->
+        <section class="lg:col-span-7 flex flex-col gap-6">
+            
+            <!-- CATEGORY SELECTOR PILLS -->
+            <div class="bg-arch-card p-2 rounded-2xl border border-arch-border flex flex-wrap items-center gap-1.5" id="categoryContainer">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- PROMPT & WIREFRAME CANVAS CARD -->
+            <div id="promptCard" class="arch-card rounded-2xl p-6 sm:p-8 transition-all duration-300 relative overflow-hidden flex flex-col justify-between min-h-[440px]">
+                
+                <!-- TOP CARD META HEADER -->
+                <div class="flex items-center justify-between z-10 border-b border-arch-border/60 pb-4">
+                    <div class="flex items-center gap-2">
+                        <span id="promptID" class="text-xs font-mono font-bold text-arch-accent bg-arch-accent/10 px-2.5 py-1 rounded-md border border-arch-accent/30">
+                            BLDG 03
+                        </span>
+                        <span id="promptCategoryBadge" class="text-xs font-mono text-arch-subtle uppercase tracking-widest">
+                            HISTORY & THEORY
+                        </span>
+                    </div>
+                    <div class="text-xs font-mono text-arch-subtle flex items-center gap-2">
+                        <span>Q3 2027</span>
+                        <i class="fa-solid fa-crosshairs text-arch-accent"></i>
+                    </div>
+                </div>
+
+                <!-- MIDDLE SECTION: WIREFRAME CANVAS & TEXT OVERLAY -->
+                <div class="my-4 z-10 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                    
+                    <!-- Text Details (7 cols) -->
+                    <div class="md:col-span-7 space-y-4">
+                        <h2 id="promptTerm" class="text-2xl sm:text-3xl font-sans font-bold text-white tracking-tight leading-tight">
+                            Loading Architectural Prompt...
+                        </h2>
+                        <p id="promptContext" class="text-xs sm:text-sm text-arch-subtle leading-relaxed font-sans">
+                            Select a category or click "Spin Next Prompt" to initiate an off-the-cuff response.
+                        </p>
+                    </div>
+
+                    <!-- Interactive Isometric Canvas (5 cols) -->
+                    <div class="md:col-span-5 relative flex items-center justify-center bg-arch-bg/60 rounded-xl border border-arch-border/80 p-2 min-h-[180px]">
+                        <canvas id="wireframeCanvas" class="w-full h-44 rounded"></canvas>
+                        <div class="absolute bottom-2 right-2 text-[10px] font-mono text-arch-subtle/70 bg-arch-card/80 px-1.5 py-0.5 rounded border border-arch-border/60">
+                            ISO 3D MODEL
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLLAPSIBLE RECALL KEYWORDS & HINTS -->
+                <div class="z-10 bg-arch-bg/80 border border-arch-border rounded-xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono text-arch-subtle uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-list-check text-arch-accent"></i> KEYWORDS & TALKING POINTS
+                        </span>
+                        <button id="btnToggleKeywords" class="text-xs font-mono text-arch-subtle hover:text-white transition">
+                            <i id="keywordsIcon" class="fa-solid fa-chevron-down transition-transform"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="keywordsContent" class="space-y-3 pt-1">
+                        <div id="keywordTags" class="flex flex-wrap gap-1.5">
+                            <!-- Injected via JS -->
+                        </div>
+                        <p id="promptHint" class="text-xs font-mono text-arch-subtle border-t border-arch-border/60 pt-2 leading-relaxed">
+                            Hint: State definition, core architectural formula/code, and prominent case study.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- MAIN SPIN BUTTON (FULL RED ACCENT MATCHING REFERENCE IMAGE) -->
+                <div class="mt-6 pt-4 border-t border-arch-border/60 flex justify-end z-10">
+                    <button id="btnSpin" class="w-full py-3.5 rounded-xl bg-arch-accent text-white font-mono font-bold text-xs uppercase tracking-widest hover:bg-red-600 transition shadow-[0_0_20px_rgba(255,59,48,0.3)] flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrows-rotate text-sm"></i> SPIN NEXT PROMPT [SPACE]
+                    </button>
+                </div>
+            </div>
+
+            <!-- SPEECH RECORDING & AUDIT STUDIO -->
+            <div class="arch-card rounded-2xl p-6 border border-arch-border space-y-6">
+                
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <!-- TIMER DISPLAY WITH RED PROGRESS RING -->
+                    <div class="flex items-center gap-4">
+                        <div id="timerRing" class="relative w-16 h-16 rounded-2xl bg-arch-bg border border-arch-border flex items-center justify-center text-white font-mono text-xl font-bold transition-all shadow-inner">
+                            <span id="timerText">60s</span>
+                        </div>
+                        <div>
+                            <div class="text-[11px] font-mono text-arch-subtle uppercase tracking-wider">PRESET DURATION</div>
+                            <div class="flex gap-2 mt-1.5">
+                                <button class="btnDuration px-3 py-1 rounded-full text-xs font-mono border border-arch-border text-arch-subtle hover:border-arch-accent" data-time="30">30s</button>
+                                <button class="btnDuration active px-3 py-1 rounded-full text-xs font-mono border border-arch-accent text-white bg-arch-accent/20" data-time="60">60s</button>
+                                <button class="btnDuration px-3 py-1 rounded-full text-xs font-mono border border-arch-border text-arch-subtle hover:border-arch-accent" data-time="90">90s</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RECORDING TRIGGER CONTROLS -->
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <button id="btnRecord" class="flex-1 sm:flex-none px-6 py-3.5 rounded-xl bg-arch-bg border border-arch-accent text-arch-accent font-mono font-bold text-xs uppercase tracking-wider hover:bg-arch-accent hover:text-white transition flex items-center justify-center gap-2">
+                            <span id="recDot" class="w-2.5 h-2.5 rounded-full bg-arch-accent"></span>
+                            <span id="recText">START RECORDING</span>
+                        </button>
+                        <button id="btnResetTimer" class="px-4 py-3.5 rounded-xl bg-arch-bg border border-arch-border text-arch-subtle hover:text-white hover:border-arch-borderLight transition font-mono text-xs" title="Reset Timer">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- LIVE WAVEFORM CANVAS -->
+                <div class="bg-arch-bg p-3.5 rounded-xl border border-arch-border space-y-2">
+                    <div class="flex justify-between items-center text-xs font-mono text-arch-subtle">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-waveform text-arch-accent"></i> AUDIO SPECTRUM VISUALIZER
+                        </span>
+                        <span id="micStatus" class="text-[11px] text-arch-subtle">Mic Idle</span>
+                    </div>
+                    <canvas id="visualizerCanvas" class="w-full h-14 rounded bg-arch-bg"></canvas>
+                </div>
+
+                <!-- RECORDED AUDIO PLAYER PREVIEW -->
+                <div id="audioPlaybackContainer" class="hidden bg-arch-bg p-4 rounded-xl border border-arch-border space-y-3">
+                    <div class="flex justify-between items-center text-xs font-mono">
+                        <span class="text-arch-accent font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-circle-play"></i> RESPONSE PLAYBACK
+                        </span>
+                        <span id="audioDurationText" class="text-arch-subtle">00:00</span>
+                    </div>
+                    <audio id="audioPlayer" controls class="w-full h-9 rounded accent-arch-accent"></audio>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: SCORE MATRIX & HISTORY (5 COLS) -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
+            
+            <!-- SCORE MATRIX & EVALUATION CARD -->
+            <div class="arch-card rounded-2xl p-6 border border-arch-border space-y-6">
+                <div class="flex items-center justify-between border-b border-arch-border pb-4">
+                    <h3 class="font-mono text-xs font-bold text-white uppercase tracking-widest flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-arch-accent"></i> PERFORMANCE AUDIT
+                    </h3>
+                    <span id="scoreBadge" class="text-xs font-mono px-3 py-1 rounded-full bg-arch-accent/20 text-arch-accent font-bold border border-arch-accent/40">
+                        60% FLUENCY
+                    </span>
+                </div>
+
+                <!-- Evaluation Sliders -->
+                <div class="space-y-4 text-xs font-mono">
+                    <!-- 1. Technical Depth -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-arch-subtle">
+                            <span>1. Technical Depth & Standards</span>
+                            <span id="valTerm" class="text-white font-bold">3/5</span>
+                        </div>
+                        <input type="range" id="sliderTerm" min="1" max="5" value="3" class="w-full">
+                    </div>
+
+                    <!-- 2. Accuracy & Formulas -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-arch-subtle">
+                            <span>2. Scientific & Mathematical Accuracy</span>
+                            <span id="valAcc" class="text-white font-bold">3/5</span>
+                        </div>
+                        <input type="range" id="sliderAcc" min="1" max="5" value="3" class="w-full">
+                    </div>
+
+                    <!-- 3. Fluency & Zero Hesitation -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-arch-subtle">
+                            <span>3. Fluency & Time Control</span>
+                            <span id="valFluency" class="text-white font-bold">3/5</span>
+                        </div>
+                        <input type="range" id="sliderFluency" min="1" max="5" value="3" class="w-full">
+                    </div>
+                </div>
+
+                <!-- Calculated WPM Metrics -->
+                <div class="grid grid-cols-2 gap-3 pt-2 font-mono">
+                    <div class="bg-arch-bg p-3 rounded-xl border border-arch-border text-center">
+                        <div class="text-[10px] text-arch-subtle">EST. SPEAKING PACE</div>
+                        <div id="calcPace" class="text-base font-bold text-white mt-1">-- wpm</div>
+                    </div>
+                    <div class="bg-arch-bg p-3 rounded-xl border border-arch-border text-center">
+                        <div class="text-[10px] text-arch-subtle">OVERALL SCORE</div>
+                        <div id="calcAccuracy" class="text-base font-bold text-arch-accent mt-1">60%</div>
+                    </div>
+                </div>
+
+                <!-- Log Attempt Button -->
+                <button id="btnSaveLog" class="w-full py-3 rounded-xl bg-arch-card hover:bg-arch-cardHover border border-arch-border hover:border-arch-accent text-white font-mono font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-floppy-disk text-arch-accent"></i> LOG RESPONSE TO SESSION
+                </button>
+            </div>
+
+            <!-- SESSION HISTORY & CSV EXPORT CARD -->
+            <div class="arch-card rounded-2xl p-6 border border-arch-border flex-1 flex flex-col justify-between space-y-4">
+                <div class="flex items-center justify-between border-b border-arch-border pb-3">
+                    <h3 class="font-mono text-xs font-bold text-white uppercase tracking-widest flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-arch-accent"></i> ATTEMPT HISTORY
+                    </h3>
+                    <button id="btnClearHistory" class="text-[11px] font-mono text-arch-subtle hover:text-arch-accent transition">
+                        Clear Log
+                    </button>
+                </div>
+
+                <!-- History List -->
+                <div id="historyList" class="space-y-2.5 overflow-y-auto max-h-[220px] pr-1 flex-1">
+                    <!-- Dynamic Log Items injected via JS -->
+                    <div class="text-center py-8 text-xs font-mono text-arch-subtle">
+                        No recorded attempts yet.<br>Spin a prompt & start practice!
+                    </div>
+                </div>
+
+                <!-- Export Data Buttons -->
+                <div class="pt-3 border-t border-arch-border grid grid-cols-2 gap-2 text-xs font-mono">
+                    <button id="btnExportCSV" class="py-2.5 bg-arch-bg hover:bg-arch-card text-arch-subtle hover:text-white rounded-xl border border-arch-border transition text-center flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-file-csv text-arch-accent"></i> Export CSV
+                    </button>
+                    <button id="btnExportJSON" class="py-2.5 bg-arch-bg hover:bg-arch-card text-arch-subtle hover:text-white rounded-xl border border-arch-border transition text-center flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-code text-white"></i> Export JSON
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- NOTION INSTRUCTION MODAL -->
+    <div id="notionModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="arch-card rounded-2xl max-w-xl w-full p-6 space-y-4 text-xs font-mono border border-arch-accent shadow-2xl">
+            <div class="flex justify-between items-center border-b border-arch-border pb-3">
+                <h3 class="text-sm text-arch-accent font-bold flex items-center gap-2">
+                    <i class="fa-brands fa-github"></i> Embed GATE Studio into Notion
+                </h3>
+                <button id="btnCloseModal" class="text-arch-subtle hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <div class="space-y-3 text-arch-subtle leading-relaxed">
+                <p class="text-white font-semibold">1. Publish via GitHub Pages:</p>
+                <div class="bg-arch-bg p-3 rounded-lg border border-arch-border space-y-1">
+                    <p>• Push <code class="text-arch-accent">index.html</code> to your repository on GitHub.</p>
+                    <p>• Enable GitHub Pages under Settings &rarr; Pages.</p>
+                </div>
+
+                <p class="text-white font-semibold pt-1">2. Paste into Notion:</p>
+                <div class="bg-arch-bg p-3 rounded-lg border border-arch-border space-y-1">
+                    <p>• Inside your Notion page, type <code class="text-arch-accent">/embed</code>.</p>
+                    <p>• Paste your published GitHub Pages URL and press Embed Link.</p>
+                </div>
+            </div>
+            <div class="pt-2 flex justify-end">
+                <button id="btnCloseModal2" class="px-5 py-2 rounded-xl bg-arch-accent text-white font-bold hover:bg-red-600 transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-arch-border bg-arch-bg/80 px-6 py-4 mt-8 font-mono text-[11px] text-arch-subtle">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div>
+                GATE 2027 AR Studio &bull; Designed in the aesthetic of <a href="https://www.unprompted.cool/" target="_blank" class="text-white hover:text-arch-accent underline">Unprompted.cool</a>
+            </div>
+            <div>
+                Architectural Studies & Planning Division
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        /* ==========================================================================
+           GATE 2027 ARCHITECTURE MASTER PROMPT DATABASE
+           ========================================================================== */
+        const MASTER_PROMPTS = [
+            {
+                id: "BLDG 01",
+                category: "History & Theory",
+                term: "Brutalism & Concrete Expressionism",
+                context: "Detail the material philosophy, exposed aggregate textures, and pioneer architects (Le Corbusier, Paul Rudolph) of Brutalist architecture.",
+                keywords: ["Béton brut", "Le Corbusier", "Unité d'Habitation", "Monolithism", "Exposed Services"],
+                hint: "Mention the French root 'Béton Brut', structural honesty, Chandigarh Secretariat, and high thermal mass applications."
+            },
+            {
+                id: "BLDG 02",
+                category: "History & Theory",
+                term: "The Vitruvian Triad & Structural Ethics",
+                context: "Elaborate on Marcus Vitruvius Pollio's three fundamental principles of architectural design and their modern structural engineering parallels.",
+                keywords: ["Firmitas (Strength)", "Utilitas (Utility)", "Venustas (Beauty)", "Ten Books on Architecture"],
+                hint: "Relate Firmitas to limit state structural design, Utilitas to spatial zoning/URDPFI, and Venustas to aesthetic proportions."
+            },
+            {
+                id: "BLDG 03",
+                category: "Urban Planning",
+                term: "Transit-Oriented Development (TOD)",
+                context: "Formulate TOD land-use planning principles, pedestrian shed radius, FAR incentives, and multimodal transit integration.",
+                keywords: ["High FAR/FSI", "Pedestrian Catchment (400-800m)", "Mixed-Land Use", "Density Bonus", "URDPFI Guidelines"],
+                hint: "Discuss 5-10 min walkability radius, active street frontages, parking maximums, and traffic demand reduction."
+            },
+            {
+                id: "BLDG 04",
+                category: "Urban Planning",
+                term: "Burgess Concentric Zone Model",
+                context: "Deconstruct E.W. Burgess's 1925 urban land use model, its 5 concentric rings, and limitations in modern polycentric cities.",
+                keywords: ["CBD", "Zone of Transition", "Commuter Zone", "Urban Ecology", "Filter Theory"],
+                hint: "Enumerate rings from 1 (CBD) to 5 (Commuter Zone). Explain why sector and multiple-nuclei models evolved past it."
+            },
+            {
+                id: "BLDG 05",
+                category: "Building Construction",
+                term: "Efflorescence in Brick Masonry",
+                context: "Explain the chemical mechanism of efflorescence in clay bricks, IS Code testing procedures, and remediation.",
+                keywords: ["Alkaline Salts", "Capillary Action", "IS 3495", "Sulphates of Sodium/Potassium", "Distilled Water Test"],
+                hint: "Soluble salts dissolve in moisture and deposit on surfaces upon evaporation. Discuss IS 3495 limits (Slight, Moderate, Heavy)."
+            },
+            {
+                id: "BLDG 06",
+                category: "Building Construction",
+                term: "Concrete Creep vs Drying Shrinkage",
+                context: "Differentiate between creep and drying shrinkage in reinforced concrete structural elements under sustained load.",
+                keywords: ["Sustained Load", "Time-Dependent Deformation", "Loss of Pre-stress", "Water-Cement Ratio", "Hydration"],
+                hint: "Creep is stress-induced long-term deformation; shrinkage is volume reduction due to moisture loss. Cite impact on pre-stressed tendons."
+            },
+            {
+                id: "BLDG 07",
+                category: "Building Services",
+                term: "Reverberation Time & Sabine's Equation",
+                context: "Define Reverberation Time (RT60), state Sabine's formula, and calculate sound absorption requirements for auditoriums.",
+                keywords: ["RT60", "T = 0.161 V / A", "Absorption Coefficient (α)", "Sound Absorbers", "Flutter Echo"],
+                hint: "RT60 is time for sound energy density to drop by 60 dB. Explain how room volume V and surface absorption A control acoustics."
+            },
+            {
+                id: "BLDG 08",
+                category: "Building Services",
+                term: "Thermal Transmittance (U-Value) vs R-Value",
+                context: "Define U-Value and R-Value for multi-layered wall assemblies and their role in ECBC envelope compliance.",
+                keywords: ["U = 1 / R_total", "W/m²K", "Thermal Conductivity (k)", "ECBC Code", "Building Envelope"],
+                hint: "R = d/k (thickness/conductivity). Lower U-value indicates superior thermal insulation. Compare wall vs glazing U-values."
+            },
+            {
+                id: "BLDG 09",
+                category: "Building Services",
+                term: "The Stack Effect & Passive Ventilation",
+                context: "Detail buoyancy-driven ventilation in atrium spaces, thermal chimneys, and neutral pressure plane dynamics.",
+                keywords: ["Buoyancy Gradient", "Air Density Differential", "Neutral Pressure Plane", "Solar Chimney", "Cross Ventilation"],
+                hint: "Warm air rises due to lower density, creating negative pressure at base to draw fresh outdoor air. Height enhances stack pressure."
+            }
+        ];
+
+        /* ==========================================================================
+           WEB AUDIO API SYNTHESIZER
+           ========================================================================== */
+        class ArchitecturalAudio {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioCtx();
+                }
+            }
+
+            // Click tone
+            playClick() {
+                if (!this.enabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.04);
+                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.04);
+            }
+
+            // Futuristic spin lock-in tone
+            playSpinLock() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            }
+
+            // Countdown Tick
+            playTick(isRed = false) {
+                if (!this.enabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = isRed ? 'sawtooth' : 'sine';
+                osc.frequency.setValueAtTime(isRed ? 750 : 500, this.ctx.currentTime);
+                gain.gain.setValueAtTime(isRed ? 0.15 : 0.05, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.06);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.06);
+            }
+
+            // Finish Chime
+            playFinish() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                [440, 554.37, 659.25, 880].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+                    gain.gain.setValueAtTime(0.15, now + idx * 0.06);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.25);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.06);
+                    osc.stop(now + idx * 0.06 + 0.25);
+                });
+            }
+        }
+
+        const soundFX = new ArchitecturalAudio();
+
+        /* ==========================================================================
+           3D ISOMETRIC CANVASES & WIREFRAME ENGINE (MATCHING REFERENCE IMAGE)
+           ========================================================================== */
+        class IsometricWireframe {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.angle = 0;
+                this.activeBuildingIndex = 2; // Matches reference image highlight
+                this.resize();
+            }
+
+            resize() {
+                if (!this.canvas) return;
+                this.canvas.width = this.canvas.parentElement.clientWidth;
+                this.canvas.height = 176;
+            }
+
+            drawIsoBox(x, y, w, h, d, isHighlighted = false) {
+                const ctx = this.ctx;
+                // Iso projection matrix angles
+                const isoX = (x - y) * 0.866;
+                const isoY = (x + y) * 0.5 - zHeight;
+
+                // Color schemes matching image_47553e.png (white wireframe vs red wireframe)
+                ctx.strokeStyle = isHighlighted ? '#FF3B30' : 'rgba(241, 243, 247, 0.4)';
+                ctx.lineWidth = isHighlighted ? 1.5 : 1;
+                ctx.fillStyle = isHighlighted ? 'rgba(255, 59, 48, 0.08)' : 'rgba(18, 21, 28, 0.6)';
+
+                // Draw wireframe grid lines
+                // Base
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + w, y - w * 0.5);
+                ctx.lineTo(x + w - d, y - w * 0.5 - d * 0.5);
+                ctx.lineTo(x - d, y - d * 0.5);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // Top
+                ctx.beginPath();
+                ctx.moveTo(x, y - h);
+                ctx.lineTo(x + w, y - h - w * 0.5);
+                ctx.lineTo(x + w - d, y - h - w * 0.5 - d * 0.5);
+                ctx.lineTo(x - d, y - h - d * 0.5);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // Vertical edges
+                ctx.beginPath();
+                ctx.moveTo(x, y); ctx.lineTo(x, y - h);
+                ctx.moveTo(x + w, y - w * 0.5); ctx.lineTo(x + w, y - h - w * 0.5);
+                ctx.moveTo(x - d, y - d * 0.5); ctx.lineTo(x - d, y - h - d * 0.5);
+                ctx.moveTo(x + w - d, y - w * 0.5 - d * 0.5); ctx.lineTo(x + w - d, y - h - w * 0.5 - d * 0.5);
+                ctx.stroke();
+
+                // Draw floor horizontal striations if highlighted
+                if (isHighlighted) {
+                    const floors = 12;
+                    for (let f = 1; f < floors; f++) {
+                        const fh = (h / floors) * f;
+                        ctx.beginPath();
+                        ctx.moveTo(x, y - fh);
+                        ctx.lineTo(x + w, y - fh - w * 0.5);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            render() {
+                const ctx = this.ctx;
+                ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                const centerX = this.canvas.width / 2;
+                const centerY = this.canvas.height / 2 + 30;
+
+                // Render massing buildings on grid
+                // Building 1
+                this.drawIsoBox(centerX - 60, centerY, 35, 55, 30, this.activeBuildingIndex === 0);
+                // Building 2
+                this.drawIsoBox(centerX - 15, centerY + 15, 25, 35, 25, this.activeBuildingIndex === 1);
+                // Building 3 (Highrise highlighted like image_47553e.png)
+                this.drawIsoBox(centerX + 30, centerY - 10, 35, 95, 30, this.activeBuildingIndex === 2);
+            }
+        }
+
+        // Global wireframe helper variable
+        var zHeight = 0;
+        let isoVisualizer;
+
+        /* ==========================================================================
+           APPLICATION STATE & VARIABLES
+           ========================================================================== */
+        let currentCategory = "All";
+        let activePrompt = MASTER_PROMPTS[0];
+        let timerSeconds = 60;
+        let selectedPresetTime = 60;
+        let timerInterval = null;
+        let isTimerRunning = false;
+
+        // Audio Recording State
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let recordStartTime = 0;
+        let lastRecordedDuration = 0;
+        let audioContext = null;
+        let analyser = null;
+        let microphoneStream = null;
+        let animFrameId = null;
+
+        const STORAGE_KEY = "GATE_AR_UNPROMPTED_LOGS_V2";
+
+        /* ==========================================================================
+           DOM REFERENCES
+           ========================================================================== */
+        const categoryContainer = document.getElementById("categoryContainer");
+        const promptCard = document.getElementById("promptCard");
+        const promptCategoryBadge = document.getElementById("promptCategoryBadge");
+        const promptID = document.getElementById("promptID");
+        const promptTerm = document.getElementById("promptTerm");
+        const promptContext = document.getElementById("promptContext");
+        const keywordTags = document.getElementById("keywordTags");
+        const promptHint = document.getElementById("promptHint");
+        const btnSpin = document.getElementById("btnSpin");
+
+        const btnToggleKeywords = document.getElementById("btnToggleKeywords");
+        const keywordsContent = document.getElementById("keywordsContent");
+        const keywordsIcon = document.getElementById("keywordsIcon");
+
+        const timerRing = document.getElementById("timerRing");
+        const timerText = document.getElementById("timerText");
+        const btnResetTimer = document.getElementById("btnResetTimer");
+        const durationButtons = document.querySelectorAll(".btnDuration");
+
+        const btnRecord = document.getElementById("btnRecord");
+        const recDot = document.getElementById("recDot");
+        const recText = document.getElementById("recText");
+        const micStatus = document.getElementById("micStatus");
+        const visualizerCanvas = document.getElementById("visualizerCanvas");
+        const canvasCtx = visualizerCanvas.getContext("2d");
+
+        const audioPlaybackContainer = document.getElementById("audioPlaybackContainer");
+        const audioPlayer = document.getElementById("audioPlayer");
+        const audioDurationText = document.getElementById("audioDurationText");
+
+        // Evaluator
+        const sliderTerm = document.getElementById("sliderTerm");
+        const sliderAcc = document.getElementById("sliderAcc");
+        const sliderFluency = document.getElementById("sliderFluency");
+        const valTerm = document.getElementById("valTerm");
+        const valAcc = document.getElementById("valAcc");
+        const valFluency = document.getElementById("valFluency");
+        const scoreBadge = document.getElementById("scoreBadge");
+        const calcPace = document.getElementById("calcPace");
+        const calcAccuracy = document.getElementById("calcAccuracy");
+        const btnSaveLog = document.getElementById("btnSaveLog");
+
+        // History & Modals
+        const historyList = document.getElementById("historyList");
+        const btnClearHistory = document.getElementById("btnClearHistory");
+        const btnExportJSON = document.getElementById("btnExportJSON");
+        const btnExportCSV = document.getElementById("btnExportCSV");
+        const btnSoundToggle = document.getElementById("btnSoundToggle");
+        const soundState = document.getElementById("soundState");
+        const btnNotionGuide = document.getElementById("btnNotionGuide");
+        const notionModal = document.getElementById("notionModal");
+        const btnCloseModal = document.getElementById("btnCloseModal");
+        const btnCloseModal2 = document.getElementById("btnCloseModal2");
+
+        /* ==========================================================================
+           INITIALIZATION
+           ========================================================================== */
+        window.addEventListener("DOMContentLoaded", () => {
+            initCategories();
+            loadPrompt(MASTER_PROMPTS[0]);
+            renderHistory();
+
+            isoVisualizer = new IsometricWireframe("wireframeCanvas");
+            isoVisualizer.render();
+
+            initCanvasResize();
+
+            // Keyboard shortcut (Space bar to spin prompt)
+            window.addEventListener("keydown", (e) => {
+                if (e.code === "Space" && e.target === document.body) {
+                    e.preventDefault();
+                    spinNextPrompt();
+                }
+            });
+        });
+
+        btnSoundToggle.addEventListener("click", () => {
+            soundFX.enabled = !soundFX.enabled;
+            soundState.innerText = soundFX.enabled ? "ON" : "OFF";
+            soundState.classList.toggle("text-arch-accent", soundFX.enabled);
+        });
+
+        btnNotionGuide.addEventListener("click", () => notionModal.classList.remove("hidden"));
+        btnCloseModal.addEventListener("click", () => notionModal.classList.add("hidden"));
+        btnCloseModal2.addEventListener("click", () => notionModal.classList.add("hidden"));
+
+        /* ==========================================================================
+           CATEGORY FILTERING & PROMPT SPIN ENGINE
+           ========================================================================== */
+        function initCategories() {
+            const categories = ["All", ...new Set(MASTER_PROMPTS.map(p => p.category))];
+            categoryContainer.innerHTML = "";
+            categories.forEach(cat => {
+                const btn = document.createElement("button");
+                btn.className = `px-3 py-1.5 rounded-full text-xs font-mono transition border ${cat === currentCategory ? 'bg-arch-accent text-white border-arch-accent font-bold' : 'border-arch-border text-arch-subtle hover:text-white hover:border-arch-borderLight'}`;
+                btn.innerText = cat;
+                btn.addEventListener("click", () => {
+                    soundFX.playClick();
+                    currentCategory = cat;
+                    initCategories();
+                    spinNextPrompt();
+                });
+                categoryContainer.appendChild(btn);
+            });
+        }
+
+        function spinNextPrompt() {
+            soundFX.playSpinLock();
+            promptCard.classList.add("card-spin-out");
+
+            setTimeout(() => {
+                let available = MASTER_PROMPTS;
+                if (currentCategory !== "All") {
+                    available = MASTER_PROMPTS.filter(p => p.category === currentCategory);
+                }
+
+                let next;
+                do {
+                    next = available[Math.floor(Math.random() * available.length)];
+                } while (available.length > 1 && next.id === activePrompt.id);
+
+                loadPrompt(next);
+
+                // Update highlighted building randomly in wireframe
+                if (isoVisualizer) {
+                    isoVisualizer.activeBuildingIndex = Math.floor(Math.random() * 3);
+                    isoVisualizer.render();
+                }
+
+                promptCard.classList.remove("card-spin-out");
+                promptCard.classList.add("card-spin-in");
+                setTimeout(() => promptCard.classList.remove("card-spin-in"), 250);
+
+                resetTimer();
+            }, 150);
+        }
+
+        function loadPrompt(prompt) {
+            activePrompt = prompt;
+            promptCategoryBadge.innerText = prompt.category.toUpperCase();
+            promptID.innerText = prompt.id;
+            promptTerm.innerText = prompt.term;
+            promptContext.innerText = prompt.context;
+            promptHint.innerText = `Hint: ${prompt.hint}`;
+
+            keywordTags.innerHTML = "";
+            prompt.keywords.forEach(kw => {
+                const tag = document.createElement("span");
+                tag.className = "px-2.5 py-1 rounded-full bg-arch-bg border border-arch-border text-arch-subtle text-[11px] font-mono";
+                tag.innerText = kw;
+                keywordTags.appendChild(tag);
+            });
+        }
+
+        btnSpin.addEventListener("click", spinNextPrompt);
+
+        btnToggleKeywords.addEventListener("click", () => {
+            soundFX.playClick();
+            const isHidden = keywordsContent.classList.contains("hidden");
+            keywordsContent.classList.toggle("hidden", !isHidden);
+            keywordsIcon.style.transform = isHidden ? "rotate(180deg)" : "rotate(0deg)";
+        });
+
+        /* ==========================================================================
+           TIMER CONTROLLER
+           ========================================================================== */
+        durationButtons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                soundFX.playClick();
+                durationButtons.forEach(b => {
+                    b.classList.remove("active", "border-arch-accent", "text-white", "bg-arch-accent/20");
+                    b.classList.add("border-arch-border", "text-arch-subtle");
+                });
+                btn.classList.add("active", "border-arch-accent", "text-white", "bg-arch-accent/20");
+                selectedPresetTime = parseInt(btn.dataset.time);
+                resetTimer();
+            });
+        });
+
+        function startTimer() {
+            if (isTimerRunning) return;
+            isTimerRunning = true;
+            timerRing.classList.add("accent-border");
+
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                timerText.innerText = `${timerSeconds}s`;
+
+                if (timerSeconds <= 10 && timerSeconds > 0) {
+                    soundFX.playTick(true);
+                    timerRing.classList.add("border-arch-accent", "text-arch-accent");
+                } else if (timerSeconds > 0) {
+                    soundFX.playTick(false);
+                }
+
+                if (timerSeconds <= 0) {
+                    stopTimer();
+                    soundFX.playFinish();
+                    if (isRecording) stopRecording();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            timerRing.classList.remove("accent-border");
+        }
+
+        function resetTimer() {
+            stopTimer();
+            timerSeconds = selectedPresetTime;
+            timerText.innerText = `${timerSeconds}s`;
+            timerRing.className = "relative w-16 h-16 rounded-2xl bg-arch-bg border border-arch-border flex items-center justify-center text-white font-mono text-xl font-bold transition-all shadow-inner";
+        }
+
+        btnResetTimer.addEventListener("click", () => {
+            soundFX.playClick();
+            resetTimer();
+        });
+
+        /* ==========================================================================
+           AUDIO RECORDING & CANVAS WAVEFORM VISUALIZER
+           ========================================================================== */
+        btnRecord.addEventListener("click", () => {
+            if (!isRecording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        });
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                microphoneStream = stream;
+                
+                audioChunks = [];
+                mediaRecorder = new MediaRecorder(stream);
+
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = processRecordedAudio;
+
+                mediaRecorder.start();
+                isRecording = true;
+                recordStartTime = Date.now();
+
+                // Audio cue
+                soundFX.playSpinLock();
+
+                // UI Updates
+                recDot.classList.add("rec-active-pulse");
+                recText.innerText = "STOP RECORDING";
+                btnRecord.classList.remove("bg-arch-bg", "text-arch-accent", "border-arch-accent");
+                btnRecord.classList.add("bg-arch-accent", "text-white", "border-arch-accent");
+                micStatus.innerText = "Recording Active";
+                micStatus.classList.add("text-arch-accent");
+
+                setupAudioSpectrum(stream);
+
+                if (!isTimerRunning) startTimer();
+
+            } catch (err) {
+                alert("Microphone permission is required to capture audio. Please enable mic access.");
+                console.error("Mic Access Error:", err);
+            }
+        }
+
+        function stopRecording() {
+            if (!isRecording || !mediaRecorder) return;
+
+            mediaRecorder.stop();
+            if (microphoneStream) {
+                microphoneStream.getTracks().forEach(track => track.stop());
+            }
+
+            isRecording = false;
+            lastRecordedDuration = Math.round((Date.now() - recordStartTime) / 1000);
+
+            soundFX.playClick();
+            stopTimer();
+
+            recDot.classList.remove("rec-active-pulse");
+            recText.innerText = "START RECORDING";
+            btnRecord.className = "flex-1 sm:flex-none px-6 py-3.5 rounded-xl bg-arch-bg border border-arch-accent text-arch-accent font-mono font-bold text-xs uppercase tracking-wider hover:bg-arch-accent hover:text-white transition flex items-center justify-center gap-2";
+            micStatus.innerText = "Mic Idle";
+            micStatus.classList.remove("text-arch-accent");
+
+            cancelAnimationFrame(animFrameId);
+            clearCanvas();
+        }
+
+        function processRecordedAudio() {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            
+            audioPlayer.src = audioUrl;
+            audioPlaybackContainer.classList.remove("hidden");
+            audioDurationText.innerText = `${lastRecordedDuration} seconds`;
+
+            calculateMetrics();
+        }
+
+        function setupAudioSpectrum(stream) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            audioContext = new AudioCtx();
+            analyser = audioContext.createAnalyser();
+            const source = audioContext.createMediaStreamSource(stream);
+            
+            source.connect(analyser);
+            analyser.fftSize = 64;
+
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+
+            function draw() {
+                animFrameId = requestAnimationFrame(draw);
+                analyser.getByteFrequencyData(dataArray);
+
+                canvasCtx.fillStyle = '#090a0f';
+                canvasCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+
+                const barWidth = (visualizerCanvas.width / bufferLength) * 1.5;
+                let x = 0;
+
+                for (let i = 0; i < bufferLength; i++) {
+                    const barHeight = (dataArray[i] / 255) * visualizerCanvas.height;
+                    
+                    // Crimson Accent Audio Bars matching design reference
+                    canvasCtx.fillStyle = '#FF3B30';
+                    canvasCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth - 2, barHeight);
+                    x += barWidth + 1;
+                }
+            }
+            draw();
+        }
+
+        function clearCanvas() {
+            canvasCtx.fillStyle = '#090a0f';
+            canvasCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+        }
+
+        function initCanvasResize() {
+            visualizerCanvas.width = visualizerCanvas.parentElement.clientWidth - 24;
+            visualizerCanvas.height = 56;
+            clearCanvas();
+            if (isoVisualizer) isoVisualizer.resize();
+        }
+        window.addEventListener("resize", initCanvasResize);
+
+        /* ==========================================================================
+           EVALUATION MATRIX & CALCULATED METRICS
+           ========================================================================== */
+        [sliderTerm, sliderAcc, sliderFluency].forEach(slider => {
+            slider.addEventListener("input", () => {
+                valTerm.innerText = `${sliderTerm.value}/5`;
+                valAcc.innerText = `${sliderAcc.value}/5`;
+                valFluency.innerText = `${sliderFluency.value}/5`;
+                calculateMetrics();
+            });
+        });
+
+        function calculateMetrics() {
+            const s1 = parseInt(sliderTerm.value);
+            const s2 = parseInt(sliderAcc.value);
+            const s3 = parseInt(sliderFluency.value);
+
+            const totalScore = Math.round(((s1 + s2 + s3) / 15) * 100);
+            scoreBadge.innerText = `${totalScore}% FLUENCY`;
+
+            const duration = lastRecordedDuration || (selectedPresetTime - timerSeconds) || 30;
+            const estimatedWords = Math.round((s3 / 5) * (duration / 60) * 135);
+            const wpm = Math.round((estimatedWords / (duration / 60)) || 0);
+
+            calcPace.innerText = `${wpm} wpm`;
+            calcAccuracy.innerText = `${totalScore}%`;
+        }
+
+        /* ==========================================================================
+           SESSION HISTORY & CSV / JSON EXPORT
+           ========================================================================== */
+        btnSaveLog.addEventListener("click", () => {
+            soundFX.playClick();
+            
+            const logItem = {
+                id: Date.now(),
+                date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                term: activePrompt.term,
+                category: activePrompt.category,
+                duration: lastRecordedDuration || (selectedPresetTime - timerSeconds),
+                score: scoreBadge.innerText,
+                termVal: sliderTerm.value,
+                accVal: sliderAcc.value,
+                fluencyVal: sliderFluency.value
+            };
+
+            const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+            existing.unshift(logItem);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+
+            renderHistory();
+        });
+
+        function renderHistory() {
+            const logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+            historyList.innerHTML = "";
+
+            if (logs.length === 0) {
+                historyList.innerHTML = `
+                    <div class="text-center py-8 text-xs font-mono text-arch-subtle">
+                        No recorded attempts yet.<br>Spin a prompt & start practice!
+                    </div>`;
+                return;
+            }
+
+            logs.forEach(log => {
+                const card = document.createElement("div");
+                card.className = "bg-arch-bg p-3 rounded-xl border border-arch-border font-mono text-xs space-y-1 hover:border-arch-accent/50 transition";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <span class="text-white font-semibold truncate max-w-[180px]">${log.term}</span>
+                        <span class="text-arch-accent font-bold">${log.score}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] text-arch-subtle">
+                        <span>${log.category}</span>
+                        <span>${log.duration}s &bull; ${log.date}</span>
+                    </div>
+                `;
+                historyList.appendChild(card);
+            });
+        }
+
+        btnClearHistory.addEventListener("click", () => {
+            if (confirm("Clear session history?")) {
+                soundFX.playClick();
+                localStorage.removeItem(STORAGE_KEY);
+                renderHistory();
+            }
+        });
+
+        // JSON Export
+        btnExportJSON.addEventListener("click", () => {
+            soundFX.playClick();
+            const data = localStorage.getItem(STORAGE_KEY) || "[]";
+            const blob = new Blob([data], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `GATE_AR_Logs_${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+        });
+
+        // CSV Export
+        btnExportCSV.addEventListener("click", () => {
+            soundFX.playClick();
+            const logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+            if (logs.length === 0) {
+                alert("No logs available to export.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,ID,Date,Term,Category,Duration_Sec,Score,Technical_Rating,Accuracy_Rating,Fluency_Rating\n";
+            logs.forEach(l => {
+                csvContent += `"${l.id}","${l.date}","${l.term}","${l.category}",${l.duration},"${l.score}",${l.termVal},${l.accVal},${l.fluencyVal}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `GATE_AR_Logs_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>
